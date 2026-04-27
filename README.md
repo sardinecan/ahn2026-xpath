@@ -1,11 +1,5 @@
 ---
-title: "Initiation à XSLT"
+title: "Initiation à XPath"
 authors:
  - Josselin Morvan, université de Rouen
 ---
-
-## Programme
-
-- Initiation à XPath ;
-- initiation à XSLT ;
-- les *Stylesheets* de la TEI

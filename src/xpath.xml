@@ -1,0 +1,491 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-model href="http://www.tei-c.org/release/xml/tei/custom/schema/relaxng/tei_all.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"?>
+<?xml-model href="http://www.tei-c.org/release/xml/tei/custom/schema/relaxng/tei_all.rng" type="application/xml"
+	schematypens="http://purl.oclc.org/dsdl/schematron"?>
+<?xml-stylesheet type="text/xsl" href="tei2slide.xsl"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:x="http://www.w3.org/1999/xhtml" xmlns:xf="http://www.w3.org/2002/xforms" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <teiHeader>
+        <fileDesc>
+            <titleStmt>
+                <title>AHN 2026</title>
+                <title type="subtitle">XPath</title>
+                <author>Josselin Morvan (université de Rouen Normandie)</author>
+            </titleStmt>
+            <publicationStmt>
+                <p>Document nativement numérique</p>
+            </publicationStmt>
+            <sourceDesc>
+                <p>Document nativement numérique</p>
+            </sourceDesc>
+        </fileDesc>
+    </teiHeader>
+    <text>
+        <body>
+            <div type="lesson">
+                <div type="slide" rend="titlePage">
+                    <head>Initiation au langage de transformation XSLT</head>
+                    <p>AHN 2026 - Josselin Morvan (université de Rouen Normandie)</p>
+                </div>
+                <div type="slide">
+                    <head>Contenu de la formation</head>
+                    <list>
+                        <item>Initiation à XPath (matinée)</item>
+                        <item>
+                            Initiation à XSLT (fin de matinée - après-midi)
+                            <list>
+                                <item>Programmation XSLT</item>
+                                <item>Les <emph>stylesheets</emph> de la TEI</item>
+                            </list>
+                        </item>
+                    </list>
+                    <p><hi rend="bold">Objectifs</hi> : acquérir les fondements du langage de programmation XSLT pour transformer des documents XML-TEI vers HTML pour la publication web.</p>
+                </div>
+                <div type="slide" rend="titlePage">
+                    <head>Définitions</head>
+                </div>
+                <div type="slide">
+                    <head>XPath et XSLT</head>
+                    <list>
+                        <item><hi rend="bold">XPath</hi> : syntaxe non XML pour <hi rend="bold">parcourir</hi> un <emph>arbre</emph> XML </item>
+                        <item><hi rend="bold">XSLT</hi> : application XML pour <hi rend="bold">transformer</hi> un <emph>arbre</emph> XML </item>
+                    </list>
+                    <p>XPath et XSLT sont des standards développés et maintenus par le <emph>World Wide Web Consortium</emph> (W3C)</p>
+                    <p>XPath est un langage <emph>intégré</emph> dans de nombreuses applications XML ou non (DOM, XSLT, XML Schema, XForms, XQuery, etc.)</p>
+                </div>
+                <div type="slide">
+                    <head>Arborescence</head>
+                    <p>Représenter cet arbre XML :</p>
+                    <egXML xmlns="http://www.tei-c.org/ns/Examples" rend="xml">
+<![CDATA[<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="tei2html.xsl"?>
+<div type="letter">
+    <opener>
+        <dateline rend="right">11 h. du soir</dateline>
+    </opener>
+    <p>Je t’aime – <lb/> J’ai un si violent mal de tête qu’il me serait impossible de continuer ces lignes. Mais tout est là – dans un mot. Je t’aime.</p>
+    <closer>
+        <signed rend="right">Juliette</signed>
+    </closer>
+</div>]]>
+                    </egXML>
+                    <note type="details">
+                        <label>Voir l’arbre</label>
+                        <egXML xmlns="http://www.tei-c.org/ns/Examples">
+<![CDATA[/
+├── <?xml-stylesheet type="text/xsl" href="tei2html.xsl"?>
+└── div
+    ├── @type
+    │   └── "letter"
+    ├── opener
+    │   └── dateline
+    │       ├── @rend
+    │       │   └── "right"
+    │       └── "11 h. du soir"
+    ├── p
+    │   ├── "Je t'aime – "
+    │   ├── lb
+    │   └── " J'ai un si violent mal de tête qu'il me serait impossible de continuer ces lignes. Mais tout est là – dans un mot. Je t'aime."
+    └── closer
+        └── signed
+            ├── @rend
+            │   └── "right"
+            └── "Juliette"]]>
+                        </egXML>
+                    </note>
+                </div>
+                <div type="slide">
+                    <head>Arbre et nœud</head>
+                    <note type="details">
+                        <label>Qu’est-ce qu’un <emph>arbre</emph> ?</label>
+                        <p>Un <emph>arbre</emph> est une structure hiérarchique composée de <hi rend="bold">nœuds</hi>.</p>
+                    </note>
+                    <note type="details">
+                        <label>Qu’est-ce qu’un <emph>nœud</emph> ?</label>
+                        <p>Un <emph>nœud</emph> correspond à une composante d’un arbre pouvant contenir une sous-arborescence.</p>
+                    </note>
+                </div>
+                <div type="slide" rend="titlePage">
+                    <head>Première partie <lb/>XPath</head>
+                </div>
+                <div type="slide">
+                    <head>Définition et usage</head>
+                    <p><emph>XPath</emph> peut être utilisé pour effectuer des calculs numériques, manipuler des chaînes de caractères, ou encore évaluer des conditions (booléens), mais surtout :</p>
+                    <quote>
+                        <p>« XPath est un langage pour sélectionner des nœuds et ensembles de nœuds [dans une] arborescence. »</p>
+                        <bibl>Harold, Elliotte Rusty et Means, W. Scott. « XML en concentré : manuel de référence »</bibl>
+                    </quote>
+                    <p>Une expression <emph>XPath</emph> est un <hi rend="bold">chemin</hi> composé d’une série d’étapes, où chaque étape correspond à un type de nœud à traverser.</p>
+                </div>
+                <div type="slide">
+                    <head>Un document XML minimaliste</head>
+                    <egXML xmlns="http://www.tei-c.org/ns/Examples" rend="xml">
+<![CDATA[<body>
+    <div type="shortLetter">
+        <opener>
+            <dateline rend="right">17 février 1833</dateline>
+        </opener>
+        <p n="1">Viens me chercher ce soir chez M<hi rend="superscript">me</hi> K. Je t’aimerai jusque-là pour prendre patience – et ce soir – Oh ! ce soir ce sera tout ! Je me donnerai à toi tout entière</p>
+        <closer>
+            <signed rend="right">J.</signed>
+        </closer>
+    </div>
+    <div type="letter">
+        <opener>
+            <dateline rend="right">Paris, 5 septembre 1882, mardi matin, 9 h.</dateline>
+        </opener>
+        <p n="1">Cher bien-aimé, je pense qu’il vaut mieux ne parler ni de ta nuit ni de la mienne car nous n’aurions rien de bon à en dire de l’une ni de l’autre. […]</p>
+        <p n="2">Cher adoré, à toi à décider, en dernier ressort quand et comment tu veux partir. Moi je suis prête et je t’adore.</p>
+    </div>
+</body>]]>
+                    </egXML>
+                </div>
+                <div type="slide">
+                    <head>Faire son chemin…</head>
+                    <p>Par quelles étapes doit-on passer pour atteindre les éléments <code>div</code> ?</p>
+                    <figure>
+                        <graphic url="../assets/images/xpath/tree.png"/>
+                    </figure>
+                    <note type="details">
+                        <label>Réponse</label>
+                        <p>On commence par l’élément <code>body</code>, puis on descend dans les éléments <emph>fils</emph> <code>div</code>. <lb/>Avec XPath : <code>/child::body/child::div</code></p>
+                        <figure>
+                            <graphic url="../assets/images/xpath/tree01.png"/>
+                        </figure>
+                    </note>
+                </div>
+                <div type="slide">
+                    <head>Les étapes</head>
+                    <p rend="alignCenter"><code>/child::body/child::div</code></p>
+                    <list>
+                        <item>Le point de départ est la racine du document : <code>/</code> ;</item>
+                        <item>chaque étape est séparée de la précédente par l’opérateur <code>/</code> ;</item>
+                        <item>une étape correspond à <code>axe::test</code> : 
+                            <list>
+                                <item>l’<code>axe</code> indique la direction dans laquelle on se déplace (nœud fils = <code>child</code>),</item>
+                                <item>le <code>test</code> correspond au nœud que l’on recherche (nom du nœud).</item>
+                            </list>
+                        </item>
+                    </list>
+                </div>
+                <div type="slide">
+                    <head rend="hidden">Les étapes - Q° 01</head>
+                    <p><code>/child::body/child::div/child::closer</code> ?</p>
+                    <figure>
+                        <graphic url="../assets/images/xpath/tree.png"/>
+                    </figure>
+                    <note type="details">
+                        <label>Réponse</label>
+                        <figure>
+                            <graphic url="../assets/images/xpath/tree02.png"/>
+                        </figure>
+                    </note>
+                </div>
+                
+                <div type="slide">
+                    <head rend="hidden">Les étapes - Q° 02</head>
+                    <p><code>/child::body/child::div/child::p</code> ?</p>
+                    <figure>
+                        <graphic url="../assets/images/xpath/tree.png"/>
+                    </figure>
+                    <note type="details">
+                        <label>Réponse</label>
+                        <figure>
+                            <graphic url="../assets/images/xpath/tree03.png"/>
+                        </figure>
+                    </note>
+                </div>
+                <div type="slide">
+                    <head>Les axes</head>
+                    <figure>
+                        <graphic url="https://jrebecchi.github.io/xpath-helper/_images/xpath-axes.jpg"/>
+                        <figDesc>Les axes XPath</figDesc>
+                    </figure>
+                </div>
+                <div type="slide">
+                    <head rend="hidden">Les axes - Q° 01</head>
+                    <p><code>/child::body/descendant::p</code> ?</p>
+                    <figure>
+                        <graphic url="../assets/images/xpath/tree.png"/>
+                    </figure>
+                    <note type="details">
+                        <label>Réponse</label>
+                        <figure>
+                            <graphic url="../assets/images/xpath/tree03.png"/>
+                        </figure>
+                    </note>
+                </div>
+                <div type="slide">
+                    <head>Les nœuds</head>
+                    <p>Bien évidemment, on peut chercher autre chose que des nœuds éléments, par exemple des attributs, ou du texte.</p>
+                    <p>Il existe <hi rend="bold">7</hi> types de <hi rend="bold">nœuds</hi> :</p>
+                    <list>
+                        <item>le nœud <emph>racine</emph> (<code>≠</code> de l’<hi rend="bold">élément racine</hi>, on parle aussi de nœud <emph>document</emph>), il est unique (<code>/</code>) </item>
+                        <item>les nœuds <emph>éléments</emph></item>
+                        <item>les nœuds <emph>attributs</emph> (axe <code>attribute::</code>)</item>
+                        <item>les nœuds <emph>texte</emph> (<code>text()</code>) </item>
+                        <item>les nœuds <emph>commentaires</emph> (<code>comment()</code>) </item>
+                        <item>les nœuds <emph>instructions de traitement</emph> (<code>processing-instruction()</code>) </item>
+                        <item>les nœuds d’<emph>espace de nom</emph></item>
+                    </list>
+                    <p>Les <emph>Jokers</emph></p>
+                    <list>
+                        <item><code>*</code> : tout nœud élément </item>
+                        <item><code>node()</code> : n’importe quel nœud (sauf les attributs)</item>
+                        <item><code>@*</code> : tout nœud attribut</item>
+                    </list>
+                    <p>Les <hi rend="bold">opérateurs</hi> de séquence</p>
+                    <list>
+                        <item><code>|</code> ou <code>union</code> : union</item>
+                        <item><code>intersect</code> : intersection</item>
+                        <item><code>except</code> : exclusion</item>
+                        <item><code>()</code> : combinaison</item>
+                    </list>
+                </div>
+                <div type="slide">
+                    <head rend="hidden">Les nœuds - Q° 01</head>
+                    <p><code>/child::body/child::div/attribute::type</code> ?</p>
+                    <figure>
+                        <graphic url="../assets/images/xpath/tree.png"/>
+                    </figure>
+                    <note type="details">
+                        <label>Réponse</label>
+                        <figure>
+                            <graphic url="../assets/images/xpath/tree04.png"/>
+                        </figure>
+                    </note>
+                </div>
+                <div type="slide">
+                    <head rend="hidden">Les nœuds - Q° 02</head>
+                    <p><code>/child::body/child::div/child::*</code> ?</p>
+                    <figure>
+                        <graphic url="../assets/images/xpath/tree.png"/>
+                    </figure>
+                    <note type="details">
+                        <label>Réponse</label>
+                        <figure>
+                            <graphic url="../assets/images/xpath/tree09.png"/>
+                        </figure>
+                    </note>
+                </div>
+                
+                <div type="slide">
+                    <head rend="hidden">Les nœuds - Q° 03</head>
+                    <p><code>/child::body/child::div/child::p/following-sibling::* intersect /child::body/child::div/child::closer</code> ?</p>
+                    <figure>
+                        <graphic url="../assets/images/xpath/tree.png"/>
+                    </figure>
+                    <note type="details">
+                        <label>Réponse</label>
+                        <figure>
+                            <graphic url="../assets/images/xpath/tree10.png"/>
+                        </figure>
+                    </note>
+                </div>
+                <div type="slide">
+                    <head>Shorthand</head>
+                    <p>XPath possède une syntaxe abréviée (<emph>shorthand</emph>) pour certaines expressions :</p>
+                    <list>
+                        <item>l’axe <code>child::</code> est facultatif ;</item>
+                        <item>l’axe <code>attribute::</code> peut être remplacé par le symbole <code>@</code> ;</item>
+                        <item>l’axe <code>parent::</code> peut être noté <code>..</code> ;</item>
+                        <item>l’axe <code>descendant-or-self::</code> est abrévié en <code>//</code> (autrement dit, n’importe où dans le document).</item>
+                        <item>Le nœud courant est abrévié <code>.</code></item>
+                    </list>
+                    <egXML xmlns="http://www.tei-c.org/ns/Examples">
+                        <![CDATA[
+/child::body/child::div = /body/div
+/child::body/child::div/attribute::type = /body/div/@type
+/child::body/descendant::p = /body//p
+                        ]]>
+                    </egXML>
+                </div>
+                <div type="slide">
+                    <head rend="hidden">Shorthand - Q° 01</head>
+                    <p><code>/body/div/p</code> ?</p>
+                    <figure>
+                        <graphic url="../assets/images/xpath/tree.png"/>
+                    </figure>
+                    <note type="details">
+                        <label>Réponse</label>
+                        <figure>
+                            <graphic url="../assets/images/xpath/tree03.png"/>
+                        </figure>
+                    </note>
+                </div>
+                <div type="slide">
+                    <head rend="hidden">Shorthand - Q° 02</head>
+                    <p><code>//@type</code> ?</p>
+                    <figure>
+                        <graphic url="../assets/images/xpath/tree.png"/>
+                    </figure>
+                    <note type="details">
+                        <label>Réponse</label>
+                        <figure>
+                            <graphic url="../assets/images/xpath/tree04.png"/>
+                        </figure>
+                    </note>
+                </div>
+                <div type="slide">
+                    <head rend="hidden">Shorthand - Q° 03</head>
+                    <p><code>//p/../@type</code> ?</p>
+                    <figure>
+                        <graphic url="../assets/images/xpath/tree.png"/>
+                    </figure>
+                    <note type="details">
+                        <label>Réponse</label>
+                        <figure>
+                            <graphic url="../assets/images/xpath/tree04.png"/>
+                        </figure>
+                    </note>
+                </div>
+                <div type="slide">
+                    <head>Les prédicats</head>
+                    <p>Les <emph>prédicats</emph> sont des conditions de sélection. Ce sont des expressions logiques qui retournent un booléen (vrai ou faux, 1 ou 0).</p>
+                    <p>Ce sont des expressions XPath placées entre crochets « <code>[]</code> » à la suite d’un nœud. Ils correspondent aux conditions que doivent remplir un nœud pour être retenu.</p>
+                    <p>Chaque étape d’un chemin XPath peut contenir <emph>0</emph> ou <emph>n</emph> prédicats.</p>
+                    <p>Exemples de tests courants :</p>
+                    <list>
+                        <item>existence d’un élément ou d’un attribut</item>
+                        <item>valeur d’un attribut</item>
+                        <item>position du nœud</item>
+                    </list>
+                </div>
+                <div type="slide">
+                    <head rend="hidden">Les prédicats - Q° 01</head>
+                    <p><code>//*[@rend]</code> ?</p>
+                    <figure>
+                        <graphic url="../assets/images/xpath/tree.png"/>
+                    </figure>
+                    <note type="details">
+                        <label>Réponse</label>
+                        <figure>
+                            <graphic url="../assets/images/xpath/tree11.png"/>
+                        </figure>
+                    </note>
+                </div>
+                <div type="slide">
+                    <head rend="hidden">Les prédicats - Q° 02</head>
+                    <p><code>//div[@type = 'letter']</code> ?</p>
+                    <figure>
+                        <graphic url="../assets/images/xpath/tree.png"/>
+                    </figure>
+                    <note type="details">
+                        <label>Réponse</label>
+                        <figure>
+                            <graphic url="../assets/images/xpath/tree05.png"/>
+                        </figure>
+                        <!--<p>On notera que l'usage des single quote pour les chaines de caractères</p>-->
+                    </note>
+                </div>
+                <div type="slide">
+                    <head rend="hidden">Les prédicats - Q° 03</head>
+                    <p><code>//@type[. = 'letter']</code> ?</p>
+                    <figure>
+                        <graphic url="../assets/images/xpath/tree.png"/>
+                    </figure>
+                    <note type="details">
+                        <label>Réponse</label>
+                        <figure>
+                            <graphic url="../assets/images/xpath/tree08.png"/>
+                        </figure>
+                    </note>
+                </div>
+                <div type="slide">
+                    <head rend="hidden">Les prédicats - Q° 04</head>
+                    <p><code>//p[1]</code> ?</p>
+                    <figure>
+                        <graphic url="../assets/images/xpath/tree.png"/>
+                    </figure>
+                    <note type="details">
+                        <label>Réponse</label>
+                        <figure>
+                            <graphic url="../assets/images/xpath/tree06.png"/>
+                        </figure>
+                    </note>
+                </div>
+                <div type="slide">
+                    <head rend="hidden">Les prédicats - Q° 05</head>
+                    <p><code>//p[@n &lt; 3][../@type='letter']</code> ?</p>
+                    <figure>
+                        <graphic url="../assets/images/xpath/tree.png"/>
+                    </figure>
+                    <note type="details">
+                        <label>Réponse</label>
+                        <figure>
+                            <graphic url="../assets/images/xpath/tree07.png"/>
+                        </figure>
+                    </note>
+                </div>
+                <div type="slide">
+                    <head>Les opérateurs de comparaison</head>
+                    <p>Les opérateurs de comparaison sont très utilisés dans les prédicats :</p>
+                    <list>
+                        <item>égal « <code>=</code> », </item>
+                        <item>différent « <code>!=</code> », </item>
+                        <item>inférieur « <code>&lt;</code> » et inférieur ou égal « <code>&lt;=</code> », </item>
+                        <item>supérieur « <code>&gt;</code> » et supérieur ou égal « <code>&gt;=</code> ». </item>
+                    </list>
+                    <p>Les opérateurs « <code>AND</code> » (et) et « <code>OR</code> » (ou) permettent de combiner les expressions booléennes.</p>
+                    <list>
+                        <item><code>//*[@type OR @rend]</code></item>
+                    </list>
+                </div>
+                <div type="slide">
+                    <head>Les fonctions</head>
+                    <p>XPath dispose également d’un large catalogue de fonctions que l’on peut utiliser.</p>
+                    <list>
+                        <item><code>position()</code> : position de l’élément dans son contexte</item>
+                        <item><code>concat(x, y…)</code> : concaténation des chaînes x et y…</item>
+                        <item><code>contains(x, y)</code> : teste si x contient y</item>
+                        <item><code>starts-with(x, y)</code> : teste si x commence par y</item>
+                        <item><code>count(x)</code> : compte le nombre de nœuds x</item>
+                        <item><code>not(x)</code> : inverse la valeur de l’expression booléenne x</item>
+                    </list>
+                </div>
+                <div type="slide">
+                    <head rend="hidden">Les fonctions - Q° 01</head>
+                    <p><code>//div[count(p) = 2]</code> ?</p>
+                    <figure>
+                        <graphic url="../assets/images/xpath/tree.png"/>
+                    </figure>
+                    <note type="details">
+                        <label>Réponse</label>
+                        <figure>
+                            <graphic url="../assets/images/xpath/tree05.png"/>
+                        </figure>
+                    </note>
+                </div>
+                <div type="slide">
+                    <head rend="hidden">Les fonctions - Q° 02</head>
+                    <p><code>//div[not(@type = 'letter')]</code> ?</p>
+                    <figure>
+                        <graphic url="../assets/images/xpath/tree.png"/>
+                    </figure>
+                    <note type="details">
+                        <label>Réponse</label>
+                        <figure>
+                            <graphic url="../assets/images/xpath/tree12.png"/>
+                        </figure>
+                    </note>
+                </div>
+                <div type="slide" rend="titlePage">
+                    <head>Exercice 01</head>
+                    
+                </div>
+                <div type="slide">
+                    <head>Bibliographie</head>
+                    <list>
+                        <item>Château-Dutier E. Introduction à l’édition critique avec la Text Encoding Initiative (TEI)</item>
+                        <item>Birnbaum D. J. « What can XPath do for me? ». Disponible sur : &lt;<ref target="http://dh.obdurodon.org/introduction-xpath.xhtml">http://dh.obdurodon.org/introduction-xpath.xhtml</ref>&gt; </item>
+                        <item>Harold E. R., Means W. S. XML en concentré : manuel de référence. Paris, France : O’Reilly, 2005. ISBN : 2-84177-353-1 </item>
+                        <item>« XML Path Language (XPath) 3.1 ». Disponible sur : &lt;<ref target="https://www.w3.org/TR/xpath-31/">https://www.w3.org/TR/xpath-31/</ref>&gt; </item>
+                    </list>
+                </div>
+                <div type="slide">
+                    <head>The End</head>
+                    <p>&lt;merci/&gt;</p>
+                </div>
+            </div>
+        </body>
+    </text>
+</TEI>

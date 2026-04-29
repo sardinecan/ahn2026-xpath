@@ -425,7 +425,7 @@
                         <item>inférieur « <code>&lt;</code> » et inférieur ou égal « <code>&lt;=</code> », </item>
                         <item>supérieur « <code>&gt;</code> » et supérieur ou égal « <code>&gt;=</code> ». </item>
                     </list>
-                    <p>Les opérateurs « <code>AND</code> » (et) et « <code>OR</code> » (ou) permettent de combiner les expressions booléennes.</p>
+                    <p>Les opérateurs « <code>and</code> » (et) et « <code>or</code> » (ou) permettent de combiner les expressions booléennes.</p>
                     <list>
                         <item><code>//*[@type OR @rend]</code></item>
                     </list>
